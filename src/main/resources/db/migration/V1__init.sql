@@ -6,9 +6,12 @@ CREATE TABLE stocks(
     marketCap INTEGER
 );
 
+DROP TABLE IF EXISTS stockPrice;
+
 CREATE TABLE stockPrice (
-    symbol VARCHAR(50) PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY, -- ✅ New primary key
+    symbol VARCHAR(50) NOT NULL, -- ✅ Foreign key referencing `stocks(symbol)`
     price DECIMAL(10, 2),
     dividendsPerShare DECIMAL(10, 2),
-    FOREIGN KEY (symbol) REFERENCES stocks(symbol)
+    FOREIGN KEY (symbol) REFERENCES stocks(symbol) ON DELETE CASCADE
 );
