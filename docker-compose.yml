@@ -13,6 +13,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  flyway:
+    image: flyway/flyway:latest
+    container_name: flyway_migration
+    depends_on:
+      - db
+    command: [
+      "migrate",
+      "-url=jdbc:postgresql://db:5432/stock_reactive",
+      "-user=username",
+      "-password=password"
+    ]
+    volumes:
+      - ./src/main/resources/db/migration:/flyway/sql
+
   app:
     build:
         context: .
@@ -20,6 +34,7 @@ services:
     container_name: spring_app
     depends_on:
       - db
+      - flyway
     environment:
       SPRING_R2DBC_URL: r2dbc:postgresql://db:5432/stock_reactive
       SPRING_R2DBC_USERNAME: username
@@ -32,3 +47,58 @@ services:
 
 volumes:
   postgres_data:
+
+#version: '3.8'
+#
+#services:
+#  db:
+#    image: postgres:latest
+#    container_name: postgres_db
+#    environment:
+#      POSTGRES_USER: username
+#      POSTGRES_PASSWORD: password
+#      POSTGRES_DB: stock_reactive
+#    ports:
+#      - "5432:5432"
+#    networks:
+#      - my_network
+#
+#  flyway:
+#    image: flyway/flyway:latest
+#    container_name: flyway_migration
+#    depends_on:
+#      - db
+#    command: [
+#      "migrate",
+#      "-url=jdbc:postgresql://db:5432/stock_reactive",
+#      "-user=username",
+#      "-password=password"
+#    ]
+#    volumes:
+#      - ./src/main/resources/db/migration:/flyway/sql
+#    networks:
+#      - my_network
+#
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: spring_app
+#    depends_on:
+#      - db
+#      - flyway
+#    environment:
+#      SPRING_R2DBC_URL: r2dbc:postgresql://db:5432/stock_reactive
+#      SPRING_R2DBC_USERNAME=username
+#      SPRING_R2DBC_PASSWORD=password
+#      SPRING_FLYWAY_URL=jdbc:postgresql://db:5432/stock_reactive
+#      SPRING_FLYWAY_USER=username
+#      SPRING_FLYWAY_PASSWORD=password
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - my_network
+#
+#networks:
+#  my_network:
+

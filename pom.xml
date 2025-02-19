@@ -116,7 +116,7 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>10.20.1</version>
                 <configuration>
-                    <url>jdbc:postgresql://db:5433/stock_reactive</url>
+                    <url>jdbc:postgresql://db:5432/stock_reactive</url>
                     <user>username</user>
                     <password>password</password>
                     <!-- If using a specific driver, specify it here -->
