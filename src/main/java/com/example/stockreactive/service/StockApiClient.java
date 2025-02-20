@@ -92,8 +92,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.Response;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
@@ -103,6 +106,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class StockApiClient {
+//    @Autowired
+//    private final R2dbcEntityTemplate r2dbcEntityTemplate;
 
     private final AsyncHttpClient httpClient = new DefaultAsyncHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -115,11 +120,13 @@ public class StockApiClient {
     @Value("${rapidapi.host}")
     private String rapidApiHost;
 
-    public StockApiClient(StockRepository stockRepository, StockPriceRepository stockPriceRepository) {
+    public StockApiClient(R2dbcEntityTemplate r2dbcEntityTemplate, StockRepository stockRepository, StockPriceRepository stockPriceRepository) {
+//        this.r2dbcEntityTemplate = r2dbcEntityTemplate;
         this.stockRepository = stockRepository;
         this.stockPriceRepository = stockPriceRepository;
     }
 
+    @Transactional
     public Mono<StockPrice> fetchStockData(String symbol) {
         // ✅ FIXED: Correct API URL
         String requestUrl = "https://yahoo-finance15.p.rapidapi.com/api/v1/markets/stock/quotes?ticker=" + symbol;
@@ -180,12 +187,10 @@ public class StockApiClient {
                         );
 
 
-                        return stockRepository.findById(stock.getSymbol())
-                                .flatMap(existingStock -> stockRepository.save(stock))  // ✅ If stock exists, update it
-                                .switchIfEmpty(stockRepository.save(stock))  // ✅ If stock doesn't exist, insert it
-                                .then(stockRepository.findById(stock.getSymbol()))  // ✅ Ensure stock is in the database
-                                .flatMap(savedStock -> stockPriceRepository.save(stockPrice))  // ✅ Then insert stock price
-                                .switchIfEmpty(stockPriceRepository.save(stockPrice));  // ✅ Ensure stock price is inserted
+                        return stockRepository.save(stock)
+                                .then(stockPriceRepository.save(stockPrice));
+
+
 
 
                     } catch (Exception e) {
