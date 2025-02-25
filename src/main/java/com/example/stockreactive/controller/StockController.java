@@ -12,8 +12,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/stocks")
 public class StockController {
 
-    private final StockService stockService;
 
+    private final StockService stockService;
 
 
     public StockController(StockService stockService) {
@@ -22,14 +22,15 @@ public class StockController {
 
     @GetMapping("/hello")
     public Mono<String> hello() {
-        return Mono.just("Hello World AGAIN");
+        return Mono.just("Hello World AGAIN and AGAIN");
     }
 
     // Fetch and store stock data
-    @GetMapping("/fetch/{symbol}")
+    @PostMapping("/fetch/{symbol}")
     public Mono<StockPrice> fetchAndStoreStock(@PathVariable String symbol) {
         return stockService.fetchAndStoreStock(symbol);
     }
+
 
     // Get all stored stocks
     @GetMapping
@@ -42,4 +43,5 @@ public class StockController {
     public Flux<StockPrice> getAllStockPrices() {
         return stockService.getAllStockPrices();
     }
+
 }

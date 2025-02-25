@@ -144,10 +144,10 @@ public class StockApiClient {
 
                         // ✅ Handle HTTP errors gracefully
                         if (statusCode == 403) {
-                            return Mono.error(new RuntimeException("❌ ERROR: 403 Forbidden - Invalid API key."));
+                            return Mono.error(new RuntimeException("ERROR: 403 Forbidden - Invalid API key."));
                         }
                         if (statusCode != 200) {
-                            return Mono.error(new RuntimeException("❌ ERROR: API request failed with status " + statusCode));
+                            return Mono.error(new RuntimeException("ERROR: API request failed with status " + statusCode));
                         }
 
                         JsonNode jsonResponse = objectMapper.readTree(response.getResponseBody());
@@ -156,7 +156,7 @@ public class StockApiClient {
 
                         // ✅ Ensure "quotes" exists and is not empty
                         if(jsonResponse.get("body").isEmpty()){
-                            return Mono.error(new RuntimeException("❌ ERROR: Missing 'quotes' data in API response."));
+                            return Mono.error(new RuntimeException("ERROR: Missing 'quotes' data in API response."));
                         }
                         JsonNode stockNode = jsonResponse.get("body").get(0);
 
@@ -174,11 +174,6 @@ public class StockApiClient {
                         float cleanedPrice = parsePrice(stockNode.has("regularMarketPrice") ? stockNode.get("regularMarketPrice").asText() : "0.0");
                         float cleanedDividends = parsePrice(stockNode.has("dividendsPerShare") ? stockNode.get("dividendsPerShare").asText() : "0.0");
 
-//                        StockPrice stockPrice = new StockPrice(
-//                                stockNode.get("symbol").asText(),
-//                                stockNode.has("regularMarketPrice") ? (float) stockNode.get("regularMarketPrice").asDouble() : 0.0f,
-//                                stockNode.has("dividendsPerShare") ? (float) stockNode.get("dividendsPerShare").asDouble() : 0.0f
-//                        );
                         StockPrice stockPrice = new StockPrice(
                                 UUID.randomUUID(), // ✅ Generate new UUID
                                 stock.getSymbol(),
@@ -194,7 +189,7 @@ public class StockApiClient {
 
 
                     } catch (Exception e) {
-                        return Mono.error(new RuntimeException("❌ ERROR: Failed to parse API response", e));
+                        return Mono.error(new RuntimeException("ERROR: Failed to parse API response", e));
                     }
                 });
 
